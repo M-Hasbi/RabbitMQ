@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using RabbitMQ.Client;
+using System.Linq;
 using System.Text;
 
 var factory = new ConnectionFactory();
@@ -12,12 +13,15 @@ var channel = connection.CreateModel();
 
 channel.QueueDeclare("hello-queue", true, false, false);
 
-string message = "hello world";
+Enumerable.Range(1, 50).ToList().ForEach(x =>
+{
+    string message = $"The message {x}";
 
-var messageBody = Encoding.UTF8.GetBytes(message);
+    var messageBody = Encoding.UTF8.GetBytes(message);
 
-channel.BasicPublish(string.Empty,"hello-queue",null,messageBody);
+    channel.BasicPublish(string.Empty, "hello-queue", null, messageBody);
 
-Console.WriteLine("The message has been sent.");
+    Console.WriteLine($"The {message} message has been sent.");
+});
 
 Console.ReadLine();

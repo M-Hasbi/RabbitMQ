@@ -11,13 +11,20 @@ using var connection = factory.CreateConnection();
 
 var channel = connection.CreateModel();
 
-//channel.QueueDeclare("hello-queue", true, false, false);
+
+
+var randomQueueName = channel.QueueDeclare().QueueName;
+
+channel.QueueBind(randomQueueName, "logs-fanout", "", null);
+
 
 channel.BasicQos(0, 1, false);
 
 var consumer = new EventingBasicConsumer(channel);
 
-channel.BasicConsume("hello-queue", false, consumer); //here if we set the true, it`s gonna make queue message dissappear right after it sends it to the consumer.
+channel.BasicConsume(randomQueueName, false, consumer); //here if we set the true, it`s gonna make queue message dissappear right after it sends it to the consumer.
+
+Console.WriteLine("Logs been listening...");
 
 consumer.Received += (object sender, BasicDeliverEventArgs e) =>
 {
